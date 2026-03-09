@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3 Wallet Connector Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .intro-section {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.8s ease-out 0.1s both;
+        }
+
+        .intro-section p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+        }
+
+        .connect-section {
+            text-align: center;
+            margin: 3rem 0;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .wallet-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wallet-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.5);
+        }
+
+        .wallet-button:active {
+            transform: translateY(0);
+        }
+
+        .wallet-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .wallet-button:hover::before {
+            left: 100%;
+        }
+
+        .wallet-info {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 8px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wallet-info.connected {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .wallet-address {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #60a5fa;
+        }
+
+        .steps-section {
+            margin-top: 3rem;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+
+        .steps-section h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: #f1f5f9;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .step-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .step-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.1);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .step-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: #f1f5f9;
+        }
+
+        .step-card p {
+            color: #cbd5e1;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: #60a5fa;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        footer a:hover {
+            color: #93c5fd;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            .intro-section {
+                padding: 1.5rem;
+            }
+
+            .intro-section p {
+                font-size: 0.95rem;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Web3 Wallet Connector Demo</h1>
+        </header>
+
+        <section class="intro-section">
+            <p>Learn how to connect your wallet like MetaMask in Web3 apps – this is a static demo. Click the button below to simulate a wallet connection and see how the process works in real applications.</p>
+        </section>
+
+        <section class="connect-section">
+            <button class="wallet-button" id="connectBtn">Connect Wallet</button>
+            <div class="wallet-info" id="walletInfo">
+                <span style="color: #94a3b8;">Click the button to connect your wallet</span>
+            </div>
+        </section>
+
+        <section class="steps-section">
+            <h2>How It Works</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Install MetaMask</h3>
+                    <p>Download the MetaMask browser extension from the official website or your app store to get started with Web3.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Click Connect</h3>
+                    <p>Visit a Web3 app and click the "Connect Wallet" button to initiate the connection process with your browser.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Confirm in Wallet</h3>
+                    <p>MetaMask will show a confirmation popup. Review the details and approve the connection to start interacting with the blockchain.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Built with <a href="https://createos.ai">CreateOS</a> • Web3 Wallet Connector Demo</p>
+    </footer>
+
+    <script>
+        const connectBtn = document.getElementById('connectBtn');
+        const walletInfo = document.getElementById('walletInfo');
+
+        let isConnected = false;
+        const fakeAddresses = [
+            '0xabc123def456abc789def012',
+            '0x1a2b3c4d5e6f7a8b9c0d1e2f',
+            '0x742d35Cc6634C0532925a3b844Bc9e759'
+        ];
+
+        connectBtn.addEventListener('click', () => {
+            if (!isConnected) {
+                // Simulate connection with loading state
+                connectBtn.disabled = true;
+                connectBtn.textContent = 'Connecting...';
+                walletInfo.innerHTML = '<span style="color: #94a3b8;">⏳ Waiting for confirmation...</span>';
+
+                setTimeout(() => {
+                    isConnected = true;
+                    const randomAddress = fakeAddresses[Math.floor(Math.random() * fakeAddresses.length)];
+                    walletInfo.classList.add('connected');
+                    walletInfo.innerHTML = `<span class="wallet-address">✓ Connected: ${randomAddress}</span>`;
+                    connectBtn.textContent = 'Disconnect Wallet';
+                    connectBtn.disabled = false;
+                    alert('✓ Wallet Connected!\n\nAddress: ' + randomAddress + '\n\nThis is a demo. In a real Web3 app, your actual wallet would be connected securely.');
+                }, 1200);
+            } else {
+                // Simulate disconnection
+                isConnected = false;
+                walletInfo.classList.remove('connected');
+                walletInfo.innerHTML = '<span style="color: #94a3b8;">Click the button to connect your wallet</span>';
+                connectBtn.textContent = 'Connect Wallet';
+                alert('✓ Wallet disconnected.');
+            }
+        });
+    </script>
+</body>
+</html>
